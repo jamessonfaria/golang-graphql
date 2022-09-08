@@ -4,6 +4,7 @@ package graph
 // will be copied through when generating and any unknown code will be moved to the end.
 
 import (
+	"math/rand"
 	"context"
 	"fmt"
 
@@ -13,17 +14,53 @@ import (
 
 // CreateCategory is the resolver for the createCategory field.
 func (r *mutationResolver) CreateCategory(ctx context.Context, input model.NewCategory) (*model.Category, error) {
-	panic(fmt.Errorf("not implemented: CreateCategory - createCategory"))
+	category := model.Category {
+		ID: fmt.Sprintf("T%d", rand.Int()),
+		Name: input.Name,
+		Description: &input.Description,
+	}
+	r.Categories = append(r.Categories, &category)
+	return &category, nil
 }
 
 // CreateCourse is the resolver for the createCourse field.
 func (r *mutationResolver) CreateCourse(ctx context.Context, input model.NewCourse) (*model.Course, error) {
-	panic(fmt.Errorf("not implemented: CreateCourse - createCourse"))
+	var category *model.Category
+	for _, v := range(r.Categories) {
+		if v.ID == input.CategoryID {
+			category = v
+		}
+	}
+
+	course := model.Course {
+		ID: fmt.Sprintf("T%d", rand.Int()),
+		Name: input.Name,
+		Description: &input.Description,
+		Category: category,
+	}
+	r.Courses = append(r.Courses, &course)
+	return &course, nil
 }
 
 // CreateChapter is the resolver for the createChapter field.
 func (r *mutationResolver) CreateChapter(ctx context.Context, input model.NewChapter) (*model.Chapter, error) {
-	panic(fmt.Errorf("not implemented: CreateChapter - createChapter"))
+	var course *model.Course
+
+	for _, v := range r.Courses {
+		if v.ID == input.CourseID {
+			course = v
+		}
+	}
+
+	chapter := &model.Chapter {
+		ID: fmt.Sprintf("T%d", rand.Int()),
+		Name: input.Name,
+		Course: course,
+	}
+	r.Chapters = append(r.Chapters, chapter)
+
+	return chapter, nil
+
 }
 
 // Categories is the resolver for the categories field.
